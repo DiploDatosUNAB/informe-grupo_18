@@ -32,6 +32,10 @@ library(dplyr)
 ```{r}
 # Cödigo de R acá 
 # Agregá más bloques según sea necesario
+empleo_genero |>
+  
+  select(c("1991":"2016"))
+  
 
 ```
 
