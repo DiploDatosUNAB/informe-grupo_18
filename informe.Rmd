@@ -1,6 +1,6 @@
 ---
-title: "titulo"
-author: "nombres"
+title: "tp1"
+author: "diego orainde"
 output: html_document
 ---
 
@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Cargar los paquetes necesarios acá
+
 ```
 
 
@@ -20,6 +21,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 # Código para cargar o leer los datos
+library(readr)
+empleo_genero <- read_csv("datos/empleo_genero.csv")
+library(dplyr)
+      
 ```
 
 
@@ -27,6 +32,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 # Cödigo de R acá 
 # Agregá más bloques según sea necesario
+
 ```
 
 
