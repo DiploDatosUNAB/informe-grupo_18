@@ -8,39 +8,461 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Cargar los paquetes necesarios acá
+library(readr)
+library(usethis)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
 
 ```
 
+# Datos de Empleo y Género #
 
-## Introducción
+## Introducción ##
+
+El siguiente informe, analiza datos del Banco Mundial sobre (des)empleo y género para algunos países de Latinoamérica y el Caribe, España y, en forma agregada, Latino America y Caribe, y el Mundo.
+El objetivo es el de visualizar y entender la situación laboral por sector y por género; realizar un informe sobre la evolución de los mismos; y evaluar el impacto de la legislación sobre acoso laboral, sobre los distinto niveles de empleo.
 
 
+### Descripción de los datos ###
 
-## Exploración de los datos
+En principio, tenemos una tabla "ancha", que en las columnas tiene: como variables, distintos niveles de empleo y desempeo, separados por género y por sector; 1 columna con el nombre del país o región; 1 columna con el código ISO de país o región, y el resto son columnas con los años en los que se encuantran los datos sobre las variables.
+
+#### empleadoras_mujeres 
+
+Dentro de la fuerza laboral femenina, porcentaje de mujeres que tienen el rol de empleadoras. Se considera como "empleador" a personas cuya remuneración depende directamente de las ganancias derivadas de los bienes y servicios que produce y que tiene una o más personas empleadas. 
+
+#### empleadores_hombres
+
+Dentro de la fuerza laboral femenina, porcentaje de  hombres que tienen el rol de empleadores. Se considera como "empleador" a personas cuya remuneración depende directamente de las ganancias derivadas de los bienes y servicios que produce y que tiene una o más personas empleadas. 
+
+#### empleo_agricultura_mujeres
+
+Dentro de la fuerza laboral femenina, porcentaje que trabaja en agricultura
+
+#### empleo_agricultura_hombres
+
+Dentro de la fuerza laboral masculina, porcentaje que trabaja en agricultura
+
+#### empleo_industria_mujeres
+
+Dentro de la fuerza laboral femenina, porcentaje que trabaja en industria 
+
+#### empleo_industria_hombres
+
+Dentro de la fuerza laboral masculina, porcentaje que trabaja en industria
+
+#### empleo_servicios_mujeres
+
+Dentro de la fuerza laboral femenina, porcentaje que trabaja en servicios
+
+#### empleo_servicios_hombres
+
+Dentro de la fuerza laboral masculina, porcentaje que trabaja en servicios
+
+#### empleo_informal_mujeres
+
+Porcentaje de mujeres en empleos informales (no vinculados a la agricultura)
+
+#### empleo_informal_hombres
+
+Porcentaje de hombres en empleos informales (no vinculados a la agricultura)
+
+#### legislacion_acoso_sexual
+
+Existencia de legislación laboral contra acoso sexual laboral (`1` = `sí`, `0` = `no`)
+
+#### autoempleo_mujeres
+
+Mujeres trabajadoras por cuenta propia. Porcentaje dentro del total de la fuerza laboral femenina. 
+
+#### autoempleo_hombres 
+
+Hombres trabajadores por cuenta propia. Porcentaje dentro del total de la fuerza laboral masculina. 
+
+#### empleo_parcial_mujeres
+
+Mujeres con trabajo a tiempo parcial. Porcentaje respecto del total de personas con trabajo a tiempo parcial.
+
+#### desempleo_educacion_mujeres 
+
+Mujeres desempleadas con estudios terciarios. Porcentaje respecto del total de la fuerza laboral femenina con estudios terciarios.
+ 
+
+#### desempleo_educacion_hombres 
+
+Hombres desempleados con estudios terciarios. Porcentaje respecto del total de la fuerza laboral masculina con estudios terciarios. 
+
+#### desempleo_mujeres
+
+Mujeres desempleadas. Porcentaje respecto del total de la fuerza laboral femenina.
+
+#### desempleo_hombres
+
+Hombres desempleados. Porcentaje respecto del total de la fuerza laboral masculina.
+
+#### trabajo_domestico_no_remunerado_mujeres
+
+Porcentaje del día utilizado por mujeres en trabajo no remunerado doméstico y de cuidado.
+
+#### trabajo_domestico_no_remunerado_hombres
+
+Porcentaje del día utilizado por hombres en trabajo no remunerado doméstico y de cuidado.
+
+
+## Exploración de los datos ##
 
 
 ```{r}
 # Código para cargar o leer los datos
-library(readr)
+
 empleo_genero <- read_csv("datos/empleo_genero.csv")
-library(dplyr)
-      
+
+
+
 ```
+
+```{r}
+empleo_genero
+```
+
+
+## **Descripción de los datos**
+
+La tabla tiene una columna para cada año, y en la columna "variable", tiene una fila por cada tipo de empleo y de situación frente al empleo, por cada país o región estudiado. 
+
+
+```{r}
+empleo_genero |>
+  group_by(pais_region)
+
+
+```
+
+A partir de esto, podemos observar que la tabla tiene datos de 23 países/regiones.
+
+
+```{r}
+empleo_genero |>
+  group_by(variable)
+
+```
+
+Por tanto, la tabla tiene datos de una serie temporal, sobre 20 variables relacionadas con distintos tipo de empleo, para 23 países o regiones. 
+Realizar un análisis sobre tantas variables y países distintos, resultaría en un estudio demasiado abarcativo y disperso. Por esto, es preferible enfocarse en algunos aspectos y países de interés, pudiéndose realizar un estudio comparado de la evolución de algunas variables relevantes.
+
+## **Hipótesis**
+
+En una primera inspección de los datos, se puede ver que los datos de empleo, estan separados por género, de modo que no pueden compararse como parte de un conjunto poblacional. Esto es que, por ejemplo, el desempleo_ mujeres tiene la tasa de mujeres desempleadas entre las mujeres, o que la suma del empleo industrial, agrícola y de servicios, sume el 100 % del empleo de cada género, o sea que sumando los datos de los dos géneros se obtiene el 200%...
+
+Igualmente, con estos datos me interesaría realizar gráficas para ver cómo ha cambiado el porcentaje de trabajadores de cada sector de la economía (en estos 3 grandes grupos: industria, agricultura y servicios), y ver la tasa de desempleo como principio para un análisis más grande que involucre acontecimientos económicos mundiales y locales, y su impacto en los niveles de empleo.
+
+## Metodología
+
+Para lo que sigue, hay a acomodar la tabla para poder trabajar los datos
+
+  1- Como la tabla tiene los años como columnas y los años son datos, hay que transformar esta tabla "ancha" en una "larga".
+  2- A su vez, las variables se encuentra agrupadas en una columna, por lo que hay que abrirla en varias columnas para que puedan intersectarse los datos entre años y países, y las variables.
+  3- Hay que seleccionar las variables a investigar, y el país/países que presenten interés, para no dispersar el estudio
+  4- Observar los resultados, y aproximar algunas hipótesis con algunos de los resultados
+  5- Intentar algunas conclusiones
+
+
+### **1- Tabla larga**
+
+
+Debido a que los datos se corresponden con los de una serie de tiempo, para poder estudiar su "evolución" en el tiempo, conviene disponerlos en una columna, y luego, disponer variables en columnas.
 
 
 
 ```{r}
-# Cödigo de R acá 
-# Agregá más bloques según sea necesario
-empleo_genero |>
-  
-  select(c("1991":"2016"))
-  
+empleo_genero_largo <- empleo_genero |>
+  pivot_longer(cols = c("1970":"2018"),
+               names_to = "anio" , values_to = "valor") |>
+  arrange(anio)
+```
+
+
+```{r}
+empleo_genero_largo
+```
+
+En esa tabla, las variables se repiten para cada país y cada año, determinando una tabala con 22540 filas. Puede verse que en la columna `valor´, faltan datos para varios años y variables. 
+
+
+```{r}
+empleo_genero_largo |>
+  filter(valor > 0) |>
+  group_by(anio) |>
+  summarise(n=n()) |>
+  arrange(anio)
+
+```
+
+De este modo, puede observarse que para los primeros 20 años de la muestra, existen pocas observaciones. Esto podría distorsionar las conclusiones que puedan llevarse adelante o mediante gráficos o por análisis de los datos. Con esta disposición de los datos, también puede obtenerse que el estudio abarca 49 años.
+
+La falta de datos en distintos años, para distintas variables y distintos países, dificulta obtener datos como el promedio.
+
+
+### Una primera aproximación a las variables, por género.
+
+#### Mujeres
+
+
+```{r}
+tipo_empleo_m <- c("empleo_industria_mujeres","empleo_servicios_mujeres", "empleo_agricultura_mujeres", "desempleo_mujeres")
+ 
+ 
+ for (i in tipo_empleo_m) {
+   empleo_genero_largo |>
+   filter(variable == i,
+          valor < 99.99, 
+          pais_region == c("Brasil","España", "Argentina")) |>
+   ggplot(aes(anio, valor)) +
+   geom_line(aes(group = pais_region, color = as.factor(pais_region))) +
+     labs(title = paste0("Tipo de empleo ", i))
+ ggsave(paste0("tipo_empleo_", i, ".png"))
+
+   
+}
+```
+
+
+Se generaron 4 imágenes con gráficos que relacionan el tipo de sector de empleo con los años, para 3 países, como porcentaje del total de las mujeres.
+
+Para los casos de empleo industrial y empleo agrícola, se observa una tendencia a la disminución del porcentaje de mujeres en ellos, aunque en el caso Argentino, es menor en términos relativos en agricultura, y cae más abruptamente para el sector industria que en el resto de los países observados.
+Para el empleo en el sector servicios, la tendencia es inversa, y puede observarse que en el caso de Argentina, llega a representar más del 90 % del empleo femenino en el final de la serie.
+En el caso del desempleo, Argentina y Brasil, vienen de niveles bajos a principios de la serie, y llegan a niveles muy altos, superando el 18 % en el caso argentino. Puede observarse, que la gráfica de ambos países, son similares, por lo que podrían tener una relación.
+
+#### Hombres
+
+```{r}
+tipo_empleo_h <- c("empleo_industria_hombres","empleo_servicios_hombres", "empleo_agricultura_hombres", "desempleo_hombres")
+ 
+ 
+ for (i in tipo_empleo_h) {
+   empleo_genero_largo |>
+   filter(variable == i,
+          valor < 99.99, 
+          pais_region == c("Brasil","España", "Argentina")) |>
+   ggplot(aes(anio, valor)) +
+   geom_line(aes(group = pais_region, color = as.factor(pais_region))) +
+     labs(title = paste0("Tipo de empleo ", i))
+ ggsave(paste0("tipo_empleo_", i, ".png"))
+
+   
+}
+```
+
+Para el caso de los hombres, las gráficas sobre desempleo son similares que en el caso de las mujeres, pero en niveles más bajos. O sea, los hombres tienen menos dificultades laborales en toda la serie para todos los países, aunque en el caso de Brasil es mucho más marcada la diferencia.
+Con respecto al empleo industrial, acá las evoluciones son disímiles: en Argentina hay un fuerte descenso durante los ´90 y una leve recuperación durante los 2000, siempre con niveles superiores a los de las mujeres (que además cayeron durante toda la serie); en Brasil, porcentajes de empleo industrial inferiores a los de Argentina, pero en leve ascenso; y España, cae abruptamente el empleo industrial desde 2005.
+En agricultura y servicios, se ven las mismas tendencias que en el caso de las mujeres
+
+
+### **2- Un valor para cada variable**
+
+Como las variables se encuentran en una sola columna, hay que desagregarla para poder relacionar la variable con determinado año, para cada país
+
+
+
+```{r}
+empleo_genero_ancho <- empleo_genero_largo |>
+    pivot_wider(names_from = variable, values_from = valor)
+empleo_genero_ancho
+
+```
+
+Ahora volvemos a tener muchas columnas (23), pero se pueden filtrar para estudiar de a una.
+Por ejemplo:
+
+
+```{r}
+empleo_genero_ancho |>
+  filter(empleo_servicios_mujeres < 99.99) |>
+  ggplot(aes(anio, empleo_servicios_mujeres)) +
+  geom_line(aes(group = pais_region, color = as.factor(pais_region)))
+
+```
+
+En el fitro se colocó que la variables sea < a 99.99 para impedir que se tomen datos erróneos que superen ese número ya que son tasas porcentuales y no deben superar el 100 %. A su vez, evita la corrupción de la ausencia de datos.
+
+
+```{r}
+empleo_genero_ancho |>
+  filter(empleo_industria_mujeres < 99.99) |>
+  ggplot(aes(anio, empleo_industria_mujeres)) +
+  geom_line(aes(group = pais_region, color = as.factor(pais_region)))
+
+```
+
+```{r}
+empleo_genero_ancho |>
+  filter(empleo_agricultura_mujeres < 99.99) |>
+  ggplot(aes(anio, empleo_agricultura_mujeres)) +
+  geom_line(aes(group = pais_region, color = as.factor(pais_region)))
 
 ```
 
 
+```{r}
+desempleo_promedio <- empleo_genero_ancho |>
+  group_by(pais_region) |>
+  summarise(mean(desempleo_mujeres, na.rm = TRUE),
+            mean(desempleo_hombres, na.rm = TRUE))
+desempleo_promedio
 
-## Hipótesis
+```
+
+Puede observarse que mayormente la tasa de desempleo femenina es mayor que la masculina en promedio.
+
+
+
+```{r}
+desempleo_max_min <- empleo_genero_ancho |>
+  group_by(pais_region) |>
+  summarise(min(desempleo_mujeres, na.rm = TRUE),
+            max(desempleo_mujeres, na.rm = TRUE),
+            min(desempleo_hombres, na.rm = TRUE),
+            max(desempleo_hombres, na.rm = TRUE))
+desempleo_max_min
+
+```
+
+Lo mismo observamos tanto para los mínimos como los máximos, que en ambos casos son más altos para las mujeres que para los hombres.
+Una primera conclusión puede ser que **las mujeres son más vulnerables en su situación frente al empleo que los hombres**, 
+
+
+### **3- Tomamos para el análisis a Brasil, Argentina y España, y el Mundo como un todo.**
+
+
+
+
+```{r}
+pais <- c("Brasil","España", "Argentina", "Mundo")
+
+
+for (i in pais) {
+  empleo_genero_ancho |>
+  filter(empleo_industria_mujeres < 99.99,
+         pais_region == i) |>
+  ggplot(aes(anio, empleo_industria_mujeres)) +
+  geom_line(aes(group = pais_region, color = as.factor(pais_region))) +
+    labs(title = paste0("Empleo industria mujeres ", i))
+ggsave(paste0("empleo_industria_mujeres_", i, ".png"))
+
+  
+}
+```
+
+## **4- Un poco de análisis comparativo**
+
+A partir de los datos obtenidos, se desprende que el trabajo tanto en hombres como mujeres, ha ido mutando hacia el sector servicios. Pero, ¿qué sucede en particular con Argentina?
+
+Se sabe que Argentina es un país agroexportador; lo mismo ocurre con Brasil, aunque se reconocce que tuvo un desarrollo industrial mayor durante la dictadura militar. Sin embargo, no parece reflejarse en el tipo de empleo que ofrece a sus trabajadores. 
+
+```{r}
+empleo_genero_ancho |>
+  filter(empleo_agricultura_mujeres < 99.99,
+         pais_region == c("Brasil","España", "Argentina", "Mundo")) |>
+  ggplot(aes(anio, empleo_agricultura_mujeres)) +
+  geom_line(aes(group = pais_region, color = as.factor(pais_region)))
+
+```
+
+
+Puede verse, que que la agricultura disminuye su poder como generadora de empleos. Pero en Argentina, llama la atención por ser un país agroexportador. La oferta de empleos agropecuarios es muy baja y casi no parece ofrecer puestos laborales. 
+
+
+
+
+```{r}
+empleo_genero_ancho |>
+  filter(empleo_agricultura_hombres < 99.99,
+    pais_region == c("Brasil","España", "Argentina", "Mundo")) |>
+  ggplot(aes(anio, empleo_agricultura_hombres)) +
+  geom_line(aes(group = pais_region, color = as.factor(pais_region)))
+
+
+```
+
+Lo mismo sucede en el empleo agrícola para hombres.
+
+Con respecto al empleo industrial para Argentina, hay una situación divergente. Por un lado, cae en los 90 duratnte un gobierno neoliberal que propición el surgimiento de un país ofertador de servicios, mientras desmantelaba la industria nacional. A partir de 2002, la situación se revierte y deja de caer el empleo industrial, pero solo para los hombres. Puede verse que la oferta de empleo industrial en el mundo, es mucho más baja que en Argentina.
+
+
+
+```{r}
+empleo_genero_ancho |>
+  filter(empleo_industria_hombres < 99.99, 
+         pais_region == c("Brasil","España", "Argentina", "Mundo")) |>
+  ggplot(aes(anio, empleo_industria_hombres)) +
+  geom_line(aes(group = pais_region, color = as.factor(pais_region)))
+
+
+```
+
+
+```{r}
+empleo_genero_ancho |>
+  filter(empleo_industria_mujeres < 99.99, 
+         pais_region == c("Brasil","España", "Argentina", "Mundo")) |>
+  ggplot(aes(anio, empleo_industria_mujeres)) +
+  geom_line(aes(group = pais_region, color = as.factor(pais_region)))
+
+
+```
+
+En el caso de las mujeres, el empleo industrial nunca dejó de caer: de representar más del 18% del empleo, a ser menos del 9%. 
+
+Para cerrar, merece un análisis aparte el hecho de que el empleo en el sector servicios, representa más del 90 % del total del empleo de las mujeres. El sector servicios ofrece en el mundo tanto los salarios mejor remunerados como los de menor calificación y peor remunerados. Tales son las tareas de cuidado o limpieza doméstica.
+
+
+```{r}
+empleo_genero_ancho |>
+  filter(empleo_servicios_mujeres < 99.99, 
+         pais_region == "Argentina") |>
+  ggplot(aes(anio, empleo_servicios_mujeres)) +
+  geom_line(aes(group = "Argentina"))
+
+
+```
+
+  
+
+
+```{r}
+
+  empleo_genero_largo |>
+   filter(variable == c("empleo_industria_mujeres", "empleo_servicios_mujeres", "empleo_agricultura_mujeres"),
+          valor < 99.99, 
+          pais_region == "Argentina") |>
+   ggplot(aes(anio, valor)) +
+   geom_line(aes(group = variable, color = as.factor(variable)))
+    
+```
+
+
+```{r}
+
+  empleo_genero_largo |>
+   filter(variable == c("empleo_industria_hombres", "empleo_servicios_hombres", "empleo_agricultura_hombres"),
+          valor < 99.99, 
+          pais_region == "Argentina") |>
+   ggplot(aes(anio, valor)) +
+   geom_line(aes(group = variable, color = as.factor(variable)))
+    
+```
+
+
+## **5- Conclusiones**
+
+A partir de los datos provenientes de una serie temporal de la base de datos del Banco Mundial, analizamos la situación frente al empleo en distintos países, y su evolución con los años. Se puede observar una tendencia, aunque con la limitación de los conocimientos sobre las herramientas que ofrece RStudio, no he podido profundizar sobre el tema. Hubiera sido necesario realizar una regresión lineal e interpretar los resultados, pero supera mis conocimiento actuales. Al margen de esta situación, se han podido analizar algunos aspectos que ponen de manifiesto las diferencias en los tipos de empleo atravesado por el factor género. Los hombres, tiene una mayor proporción de empleos industriales que las mujeres; empleos que en principio ofrecen mejores salarios promedio. Por otro lado, la mayoría de las mujeres tiene empleos del sector servicios. Merecería un análisis desagregado para poder determinar en qué tipos de empleo del sector servicios tiene mayor presencia y evaluar distintos aspectos como podría ser la diferencia salarial.
+
+
+
+
+
+
+
 
 
