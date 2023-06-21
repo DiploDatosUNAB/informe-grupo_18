@@ -3,7 +3,8 @@ title: "tp1"
 author: "diego orainde"
 output: 
   html_document:
-  code_folding: hide
+    code_folding: hide
+    toc: true
 ---
 
 
