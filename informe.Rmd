@@ -1,7 +1,9 @@
 ---
 title: "tp1"
 author: "diego orainde"
-output: html_document
+output: 
+  html_document:
+  code_folding: hide
 ---
 
 
@@ -161,11 +163,11 @@ Igualmente, con estos datos me interesaría realizar gráficas para ver cómo ha
 
 Para lo que sigue, hay a acomodar la tabla para poder trabajar los datos
 
-  1- Como la tabla tiene los años como columnas y los años son datos, hay que transformar esta tabla "ancha" en una "larga".
-  2- A su vez, las variables se encuentra agrupadas en una columna, por lo que hay que abrirla en varias columnas para que puedan intersectarse los datos entre años y países, y las variables.
-  3- Hay que seleccionar las variables a investigar, y el país/países que presenten interés, para no dispersar el estudio
-  4- Observar los resultados, y aproximar algunas hipótesis con algunos de los resultados
-  5- Intentar algunas conclusiones
+  1. Como la tabla tiene los años como columnas y los años son datos, hay que transformar esta tabla "ancha" en una "larga".
+  2. A su vez, las variables se encuentra agrupadas en una columna, por lo que hay que abrirla en varias columnas para que puedan intersectarse los datos entre años y países, y las variables.
+  3. Hay que seleccionar las variables a investigar, y el país/países que presenten interés, para no dispersar el estudio
+  4. Observar los resultados, y aproximar algunas hipótesis con algunos de los resultados
+  5. Intentar algunas conclusiones
 
 
 ### **1- Tabla larga**
